@@ -1,0 +1,866 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Яндекс такси — поездка с питомцем</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .device {
+      width: 360px;
+      height: 640px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #e3e4e8;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.65);
+      position: relative;
+    }
+    .status-bar {
+      height: 24px;
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafafa;
+      font-size: 11px;
+    }
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #111;
+    }
+    .status-right {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .screen {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 24px);
+      overflow: hidden;
+      background: #d7dde8;
+    }
+
+    .map {
+      position: absolute;
+      inset: 0;
+      background: url('map_lev_tolstogo.png') center/cover no-repeat;
+    }
+
+    .top-panel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      padding: 8px 12px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: url('https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200') center/cover no-repeat;
+      border: 2px solid #ffd633;
+      box-shadow: 0 0 0 2px #fff;
+    }
+    .addr-block {
+      display: flex;
+      flex-direction: column;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.96);
+      pointer-events: auto;
+    }
+    .addr-label {
+      font-size: 11px;
+      color: #777;
+    }
+    .addr-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .plus-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.86);
+      color: #ffd633;
+      font-size: 10px;
+      font-weight: 600;
+      pointer-events: auto;
+    }
+
+    .main-card {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 8px 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.22), transparent 40%);
+    }
+    .card-inner {
+      background: #fff;
+      border-radius: 18px;
+      padding: 10px 10px 8px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .search-main {
+      flex: 1;
+      border-radius: 999px;
+      background: #f6f6f8;
+      border: 1px solid #eee;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .search-texts {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .search-label {
+      font-size: 11px;
+      color: #999;
+    }
+    .search-placeholder {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .search-arrow {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background: #ffd633;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .pet-chip-toggle {
+      border-radius: 999px;
+      border: 1px solid #ffd633;
+      background: #fff9d6;
+      padding: 6px 9px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .pet-chip-toggle span.emoji {
+      font-size: 13px;
+    }
+    .pet-chip-toggle.active {
+      background: #ffd633;
+    }
+
+    .pet-summary {
+      margin-top: 4px;
+      font-size: 11px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      color: #555;
+    }
+    .pet-summary .label {
+      font-weight: 500;
+    }
+    .pet-summary button {
+      border: none;
+      background: transparent;
+      color: #007aff;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .categories-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      overflow-x: auto;
+    }
+    .cat-pill {
+      flex: 0 0 auto;
+      width: 80px;
+      border-radius: 14px;
+      background: #f6f6f8;
+      padding: 6px 6px 8px;
+      text-align: center;
+      font-size: 10px;
+      border: 1px solid #eee;
+    }
+    .cat-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 10px;
+      margin: 0 auto 4px;
+      background: #ffd633;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .cat-label {
+      white-space: nowrap;
+    }
+
+    /* state banner: поиск / найден / ехать */
+    .state-banner {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 72px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.98);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      z-index: 4;
+    }
+    .state-banner.visible {
+      display: flex;
+    }
+    .state-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .state-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .state-subtitle {
+      color: #555;
+    }
+    .state-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .state-time {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .state-pill {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #ffd633;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .state-progress {
+      width: 80px;
+      height: 3px;
+      border-radius: 999px;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+    .state-progress-inner {
+      height: 100%;
+      width: 45%;
+      background: #ffd633;
+    }
+
+    /* overlay + sheet */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 5;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease;
+    }
+    .overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    .detail-sheet {
+      width: 100%;
+      max-height: 78%;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 10px 12px 12px;
+      box-shadow: 0 -12px 24px rgba(0,0,0,0.4);
+      overflow-y: auto;
+      transform: translateY(40px);
+      transition: transform 0.25s ease;
+    }
+    .overlay.visible .detail-sheet {
+      transform: translateY(0);
+    }
+    .detail-handle {
+      width: 36px;
+      height: 3px;
+      border-radius: 999px;
+      background: #ddd;
+      margin: 0 auto 8px;
+    }
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .detail-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .detail-sub {
+      font-size: 11px;
+      color: #777;
+    }
+    .close-btn {
+      border: none;
+      background: #f3f3f5;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .onboard-card {
+      margin-top: 4px;
+      margin-bottom: 8px;
+      padding: 8px 8px 7px;
+      border-radius: 14px;
+      background: #fff9d6;
+      border: 1px solid #ffd633;
+      font-size: 11px;
+    }
+    .onboard-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .onboard-list {
+      margin: 0;
+      padding-left: 16px;
+      margin-bottom: 4px;
+    }
+    .onboard-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #111;
+      color: #ffd633;
+      border: none;
+      cursor: pointer;
+    }
+
+    .section-title {
+      margin-top: 8px;
+      margin-bottom: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+    }
+
+    .pet-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pet-card {
+      border-radius: 14px;
+      border: 1px solid #eee;
+      padding: 8px 8px 7px;
+      display: flex;
+      gap: 8px;
+      cursor: pointer;
+      background: #fafafa;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    }
+    .pet-card:hover {
+      border-color: #ffd633;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+    .pet-card.selected {
+      border-color: #111;
+      box-shadow: 0 0 0 2px #ffd633;
+      background: #fffdf3;
+    }
+    .pet-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #ffe57f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .pet-text {
+      flex: 1;
+    }
+    .pet-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+    .pet-title {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pet-chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #fff4b3;
+    }
+    .pet-desc {
+      font-size: 11px;
+      color: #555;
+      line-height: 1.3;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pill {
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      font-size: 11px;
+      cursor: pointer;
+      background: #fafafa;
+    }
+    .pill.selected {
+      background: #ffd633;
+      border-color: #111;
+      font-weight: 600;
+    }
+
+    .primary-btn {
+      margin-top: 8px;
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      background: #ffd633;
+      padding: 9px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 5px 14px rgba(0,0,0,0.25);
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 120px;
+      transform: translateX(-50%);
+      background: rgba(17,17,17,0.94);
+      color: #fff;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+    }
+    .toast.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="status-bar">
+      <div class="status-left">
+        <div class="status-dot"></div>
+        <span>Яндекс такси</span>
+      </div>
+      <div class="status-right">12:30</div>
+    </div>
+    <div class="screen">
+      <div class="map"></div>
+
+      <div class="top-panel">
+        <div class="top-left">
+          <div class="avatar"></div>
+          <div class="addr-block">
+            <span class="addr-label">Ваш адрес</span>
+            <span class="addr-value">Льва Толстого, 16</span>
+          </div>
+        </div>
+        <div class="plus-pill">Плюс • 1200</div>
+      </div>
+
+      <div class="state-banner" id="stateBanner">
+        <div class="state-left">
+          <div class="state-title" id="stateTitle">Поиск машины…</div>
+          <div class="state-subtitle" id="stateSubtitle">Ищем водителя, который готов везти питомца</div>
+        </div>
+        <div class="state-right">
+          <div class="state-time" id="stateTime">00:12</div>
+          <div class="state-progress">
+            <div class="state-progress-inner"></div>
+          </div>
+          <div class="state-pill" id="statePill">поездка с питомцем</div>
+        </div>
+      </div>
+
+      <div class="main-card">
+        <div class="card-inner">
+          <div class="search-row">
+            <div class="search-main" id="searchMain">
+              <div class="search-icon">🔍</div>
+              <div class="search-texts">
+                <span class="search-label">Куда едем</span>
+                <span class="search-placeholder">Укажите адрес или точку на карте</span>
+              </div>
+              <div class="search-arrow">›</div>
+            </div>
+            <button class="pet-chip-toggle" id="petToggle">
+              <span class="emoji">🐾</span>
+              <span>Еду с питомцем</span>
+            </button>
+          </div>
+          <div class="pet-summary" id="petSummaryRow">
+            <span class="label" id="petSummaryText">Питомец не выбран</span>
+            <button id="editPetBtn">Изменить</button>
+          </div>
+          <div class="categories-row">
+            <div class="cat-pill">
+              <div class="cat-icon">🏠</div>
+              <div class="cat-label">Домой</div>
+            </div>
+            <div class="cat-pill">
+              <div class="cat-icon">🏥</div>
+              <div class="cat-label">Ветклиника</div>
+            </div>
+            <div class="cat-pill">
+              <div class="cat-icon">🌳</div>
+              <div class="cat-label">Парк</div>
+            </div>
+            <div class="cat-pill">
+              <div class="cat-icon">✂️</div>
+              <div class="cat-label">Груминг</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="detailOverlay">
+        <div class="detail-sheet">
+          <div class="detail-handle"></div>
+          <div class="detail-header">
+            <div>
+              <div class="detail-title">Поездка с питомцем</div>
+              <div class="detail-sub">Уточните детали, чтобы подобрать подходящую машину</div>
+            </div>
+            <button class="close-btn" id="closeDetail">✕</button>
+          </div>
+
+          <div class="onboard-card" id="onboardCard">
+            <div class="onboard-title">Как подготовиться к поездке</div>
+            <ul class="onboard-list">
+              <li>Возьмите переноску или плед для питомца</li>
+              <li>Если нужна защита салона — отметьте это ниже</li>
+              <li>Мы заранее предупредим водителя о питомце</li>
+            </ul>
+            <button class="onboard-cta" id="onboardOkBtn">Понятно ✓</button>
+          </div>
+
+          <div class="section-title">Формат поездки</div>
+          <div class="pet-cards">
+            <div class="pet-card" data-pet-type="easy">
+              <div class="pet-icon">🐱</div>
+              <div class="pet-text">
+                <div class="pet-title-row">
+                  <div class="pet-title">Небольшой питомец в переноске</div>
+                  <div class="pet-chip">беспроблемная</div>
+                </div>
+                <div class="pet-desc">
+                  Кот или маленькая собака в переноске/на руках. Нужна обычная машина, но водитель заранее знает, что едет спокойный питомец.
+                </div>
+              </div>
+            </div>
+            <div class="pet-card" data-pet-type="hard">
+              <div class="pet-icon">🐶</div>
+              <div class="pet-text">
+                <div class="pet-title-row">
+                  <div class="pet-title">Крупный или сложный питомец</div>
+                  <div class="pet-chip">нужна спецмашина</div>
+                </div>
+                <div class="pet-desc">
+                  Большая собака, несколько животных или мокрый/грязный пёс. Нужен свободный багажник, больше места и защита салона.
+                </div>
+              </div>
+            </div>
+            <div class="pet-card" data-pet-type="emergency">
+              <div class="pet-icon">⏱</div>
+              <div class="pet-text">
+                <div class="pet-title-row">
+                  <div class="pet-title">Экстренно в клинику</div>
+                  <div class="pet-chip">приоритет</div>
+                </div>
+                <div class="pet-desc">
+                  Питомцу плохо, важно успеть. Мы честно покажем время и будем искать ближайшую машину, которая готова взять вас с животным.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">Что важно для поездки?</div>
+          <div class="pill-row" id="prefsRow">
+            <div class="pill" data-pref="clean">Не испачкать салон</div>
+            <div class="pill" data-pref="space">Больше места</div>
+            <div class="pill" data-pref="calm">Спокойный водитель</div>
+            <div class="pill" data-pref="price">Цена пониже</div>
+            <div class="pill" data-pref="eta">Честное время в пути</div>
+          </div>
+
+          <button class="primary-btn" id="saveDetail">Сохранить настройки</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">Настройки для питомца сохранены</div>
+    </div>
+  </div>
+
+  <script>
+    const searchMain = document.getElementById('searchMain');
+    const petToggle = document.getElementById('petToggle');
+    const detailOverlay = document.getElementById('detailOverlay');
+    const closeDetail = document.getElementById('closeDetail');
+    const onboardCard = document.getElementById('onboardCard');
+    const onboardOkBtn = document.getElementById('onboardOkBtn');
+    const petCards = document.querySelectorAll('.pet-card');
+    const prefsRow = document.getElementById('prefsRow');
+    const saveDetail = document.getElementById('saveDetail');
+    const petSummaryRow = document.getElementById('petSummaryRow');
+    const petSummaryText = document.getElementById('petSummaryText');
+    const editPetBtn = document.getElementById('editPetBtn');
+    const toast = document.getElementById('toast');
+
+    const stateBanner = document.getElementById('stateBanner');
+    const stateTitle = document.getElementById('stateTitle');
+    const stateSubtitle = document.getElementById('stateSubtitle');
+    const stateTime = document.getElementById('stateTime');
+    const statePill = document.getElementById('statePill');
+
+    let petEnabled = false;
+    let selectedPetType = null;
+    let selectedPrefs = new Set();
+    let onboardSeen = false;
+
+    let bookingStep = 0;
+    let bookingTimer = null;
+
+    function openDetails() {
+      detailOverlay.classList.add('visible');
+      onboardCard.style.display = onboardSeen ? 'none' : 'block';
+    }
+    function closeDetails() {
+      detailOverlay.classList.remove('visible');
+    }
+
+    function startBookingFlow() {
+      bookingStep = 0;
+      stateBanner.classList.add('visible');
+      nextBookingStep();
+    }
+
+    function nextBookingStep() {
+      bookingStep++;
+      clearTimeout(bookingTimer);
+
+      if (bookingStep === 1) {
+        stateTitle.textContent = 'Поиск машины…';
+        if (selectedPetType === 'emergency') {
+          stateSubtitle.textContent = 'Ищем ближайшую машину, чтобы успеть в клинику';
+        } else if (selectedPetType === 'hard') {
+          stateSubtitle.textContent = 'Подбираем машину со свободным багажником и накидкой';
+        } else {
+          stateSubtitle.textContent = 'Ищем водителя, который уже согласен везти питомца';
+        }
+        stateTime.textContent = '00:12';
+        statePill.textContent = 'поездка с питомцем';
+        bookingTimer = setTimeout(nextBookingStep, 1600);
+      } else if (bookingStep === 2) {
+        stateTitle.textContent = 'Водитель найден';
+        stateSubtitle.textContent = 'Антон • рейтинг 4,9 • знает, что вы с питомцем';
+        stateTime.textContent = '2 мин';
+        statePill.textContent = 'подъедет скоро';
+        bookingTimer = setTimeout(nextBookingStep, 2000);
+      } else if (bookingStep === 3) {
+        stateTitle.textContent = 'Ехать 12 минут';
+        if (selectedPetType === 'emergency') {
+          stateSubtitle.textContent = 'Честный прогноз: если время изменится, мы обновим ETA';
+        } else {
+          stateSubtitle.textContent = 'Можно сосредоточиться на питомце, а не на логистике';
+        }
+        stateTime.textContent = '12 мин';
+        statePill.textContent = 'в пути';
+        bookingTimer = setTimeout(() => {
+          stateBanner.classList.remove('visible');
+        }, 2200);
+      }
+    }
+
+    searchMain.addEventListener('click', () => {
+      if (petEnabled && selectedPetType) {
+        startBookingFlow();
+      } else {
+        openDetails();
+      }
+    });
+
+    petToggle.addEventListener('click', () => {
+      petEnabled = !petEnabled;
+      petToggle.classList.toggle('active', petEnabled);
+      if (petEnabled) {
+        openDetails();
+      } else {
+        petSummaryRow.style.display = 'none';
+        selectedPetType = null;
+        selectedPrefs.clear();
+        petCards.forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+      }
+    });
+
+    closeDetail.addEventListener('click', () => {
+      closeDetails();
+      if (!selectedPetType) {
+        petEnabled = false;
+        petToggle.classList.remove('active');
+      }
+    });
+
+    onboardOkBtn.addEventListener('click', () => {
+      onboardSeen = true;
+      onboardCard.style.display = 'none';
+    });
+
+    petCards.forEach(card => {
+      card.addEventListener('click', () => {
+        petCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedPetType = card.dataset.petType;
+      });
+    });
+
+    prefsRow.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      const key = pill.dataset.pref;
+      if (selectedPrefs.has(key)) {
+        selectedPrefs.delete(key);
+        pill.classList.remove('selected');
+      } else {
+        selectedPrefs.add(key);
+        pill.classList.add('selected');
+      }
+    });
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 1700);
+    }
+
+    function buildSummary() {
+      if (!selectedPetType) return 'Питомец не выбран';
+      let typeText = '';
+      if (selectedPetType === 'easy') typeText = 'Небольшой питомец в переноске';
+      if (selectedPetType === 'hard') typeText = 'Крупный или сложный питомец';
+      if (selectedPetType === 'emergency') typeText = 'Экстренно в клинику';
+
+      const prefsMap = {
+        clean: 'не испачкать салон',
+        space: 'больше места',
+        calm: 'спокойный водитель',
+        price: 'цена пониже',
+        eta: 'честное время'
+      };
+      const prefs = Array.from(selectedPrefs).map(p => prefsMap[p]);
+      const prefsText = prefs.length ? ' • важное: ' + prefs.join(', ') : '';
+      return typeText + prefsText;
+    }
+
+    saveDetail.addEventListener('click', () => {
+      if (!selectedPetType) {
+        showToast('Выберите формат поездки с питомцем');
+        return;
+      }
+      petEnabled = true;
+      petToggle.classList.add('active');
+      petSummaryText.textContent = buildSummary();
+      petSummaryRow.style.display = 'flex';
+      onboardSeen = true;
+      onboardCard.style.display = 'none';
+      closeDetails();
+      showToast('Настройки для питомца сохранены');
+    });
+
+    editPetBtn.addEventListener('click', openDetails);
+  </script>
+</body>
+</html>
